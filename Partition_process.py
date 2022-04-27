@@ -24,8 +24,8 @@ def main(spark, netID):
     '''
 
     # Load the boats.txt and sailors.json data into DataFrame
-    ratings = pd.read_csv(f'hdfs:/user/{netID}/movielens/ml-latest-small/ratings.csv')
-    movies = pd.read_csv(f'hdfs:/user/{netID}/movielens/ml-latest-small/movies.csv')
+    ratings = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/ratings.csv')
+    movies = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/movies.csv')
 
     user = ratings.userId.unique()
 
