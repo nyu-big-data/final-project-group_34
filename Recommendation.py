@@ -25,6 +25,18 @@ def main(spark, netID):
     avg_scores.show()
     # TODO show movie title?
 
+    ratings_val = spark.read.csv(f'hdfs:/user/{netID}/val_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings_val.createOrReplaceTempView('ratings_val')
+    avg_scores_val = spark.sql('SELECT ratings_val.movieId, AVG(ratings_val.rating) FROM ratings_val GROUP BY ratings_val.movieId ORDER BY AVG(ratings_val.rating) DESC')
+    avg_scores_val.show()
+
+    ratings_test = spark.read.csv(f'hdfs:/user/{netID}/test_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings_test.createOrReplaceTempView('ratings_test')
+    avg_scores_test = spark.sql('SELECT ratings_test.movieId, AVG(ratings_test.rating) FROM ratings_test GROUP BY ratings_test.movieId ORDER BY AVG(ratings_test.rating) DESC')
+    avg_scores_test.show()
+
+
+
     
     # print('Printing boats inferred schema')
     # boats.printSchema()
