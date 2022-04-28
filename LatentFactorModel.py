@@ -19,6 +19,7 @@ def main(spark, netID):
     '''
 
     ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    #ratings_train_RDD = spark.createDataFrame(ratings_train)
     als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop" )
     model = als.fit(ratings_train)
 
