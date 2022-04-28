@@ -10,6 +10,10 @@ import getpass
 # And pyspark.sql to get the spark session
 from pyspark.sql import SparkSession
 
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
 
 def main(spark, netID):
     '''Main routine for Lab Solutions
@@ -18,50 +22,47 @@ def main(spark, netID):
     spark : SparkSession object
     netID : string, netID of student to find files in HDFS
     '''
-    print('Lab 3 Example dataframe loading and SQL query')
 
     # Load the boats.txt and sailors.json data into DataFrame
-    boats = spark.read.csv(f'hdfs:/user/{netID}/boats.txt')
-    sailors = spark.read.json(f'hdfs:/user/{netID}/sailors.json')
+    ratings = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/ratings.csv')
+    movies = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/movies.csv')
 
-    print('Printing boats inferred schema')
-    boats.printSchema()
-    print('Printing sailors inferred schema')
-    sailors.printSchema()
-    # Why does sailors already have a specified schema?
+    user = ratings.userId.unique()
 
-    print('Reading boats.txt and specifying schema')
-    boats = spark.read.csv('boats.txt', schema='bid INT, bname STRING, color STRING')
+    train_user, testval_user = train_test_split(pd.DataFrame(user), test_size=0.6)
+    temp1_movie, temp2_movie = train_test_split(ratings['movieId'], test_size = 0.7)
 
-    print('Printing boats with specified schema')
-    boats.printSchema()
+    train_set = ratings[ratings['userId'].isin(list(train_user[0]))]
+    testval_set = ratings[ratings['userId'].isin(list(testval_user[0]))]
+    train_sending = testval_set[testval_set['movieId'].isin(list(temp1_movie))]
+    testval_cluster = testval_set[testval_set['movieId'].isin(list(temp2_movie))]
 
-    # Give the dataframe a temporary view so we can run SQL queries
-    boats.createOrReplaceTempView('boats')
-    sailors.createOrReplaceTempView('sailors')
-    # Construct a query
-    print('Example 1: Executing SELECT count(*) FROM boats with SparkSQL')
-    query = spark.sql('SELECT count(*) FROM boats')
+    val_user, test_user = train_test_split(testval_cluster['userId'], test_size = 0.5)
 
-    # Print the results to the console
-    query.show()
+    val_set = testval_cluster[testval_cluster['userId'].isin(list(val_user))]
+    test_set = testval_cluster[testval_cluster['userId'].isin(list(test_user))]
 
-    #####--------------YOUR CODE STARTS HERE--------------#####
+    print(val_set.head())
 
-    #make sure to load reserves.json, artist_term.csv, and tracks.csv
-    #For the CSVs, make sure to specify a schema!
+    # val_user, test_user = train_test_split(temp_user, test_size = 0.5)
 
-    #question_1_query = ....
+    # temp1_movie, temp2_movie = train_test_split(ratings['movieId'], test_size = 0.7)
 
 
-# # Only enter this block if we're in main
-# if __name__ == "__main__":
 
-#     # Create the spark session object
-#     spark = SparkSession.builder.appName('part1').getOrCreate()
 
-#     # Get user netID from the command line
-#     netID = getpass.getuser()
+    
+    
+    
 
-#     # Call our main routine
-#     main(spark, netID)
+# Only enter this block if we're in main
+if __name__ == "__main__":
+
+    # Create the spark session object
+    spark = SparkSession.builder.appName('partitioning').getOrCreate()
+
+    # Get user netID from the command line
+    netID = getpass.getuser()
+
+    # Call our main routine
+    main(spark, netID)
