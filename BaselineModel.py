@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-'''Starter Pyspark Script for students to complete for their Lab 3 Assignment.
-Usage:
-    $ spark-submit lab_3_starter_code.py <student_netID>
-'''
+
 #Use getpass to obtain user netID
 import getpass
 
