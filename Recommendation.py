@@ -19,10 +19,11 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    ratings = spark.read.csv(f'hdfs:/user/{netID}', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
     ratings.createOrReplaceTempView('ratings')
-    avg_scores = spark.sql('SELECT ratings.movieId, AVG(ratings.rating) FROM ratings GROUP BY ratings.movieId ORDER BY AVG(ratings.rating) DESC')
+    avg_scores = spark.sql('SELECT AVG(ratings.rating) FROM ratings GROUP BY ratings.movieId ORDER BY AVG(ratings.rating) DESC')
     avg_scores.show()
+    # TODO show movie title?
 
     
     # print('Printing boats inferred schema')
