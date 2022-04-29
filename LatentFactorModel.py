@@ -18,33 +18,36 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
-    ratings_train.createOrReplaceTempView('ratings_train')
-    test1 = spark.sql('SELECT * FROM ratings_train')
-    test1.show()
+    maxIters = [5, 10]
+    regParams = [0.01, 0.1]
 
-    #ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
-    #ratings_train_RDD = spark.createDataFrame(ratings_train)
-    #ratings_train.createOrReplaceTempView('ratings_train')
+    for maxIter in maxIters:
+        for regParam in regParams:
 
-    #score = spark.sql('SELECT * FROM ratings_train WHERE userId=null')
-    #score.show()
+            ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
+            ratings_train.createOrReplaceTempView('ratings_train')
+            # test1 = spark.sql('SELECT * FROM ratings_train')
+            # test1.show()
 
+            # ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+            # ratings_train_RDD = spark.createDataFrame(ratings_train)
+            # ratings_train.createOrReplaceTempView('ratings_train')
+            # score = spark.sql('SELECT * FROM ratings_train WHERE userId=null')
+            # score.show()
 
-    als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
-    model = als.fit(ratings_train)
+            als = ALS(maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+            model = als.fit(ratings_train)
 
-    ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet') # TODO timestamep type
-    ratings_test.createOrReplaceTempView('ratings_test')
-    test2 = spark.sql('SELECT * FROM ratings_test')
-    test2.show()    
-
-    predicted = model.transform(ratings_test)
-    print(predicted)
-    #predicted = predicted.na.drop()
-    evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
-    rmse = evaluator.evaluate(predicted)
-    print("Root-mean-square error = " + str(rmse))
+            ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet') # TODO timestamep type
+            ratings_val.createOrReplaceTempView('ratings_val')
+            #test2 = spark.sql('SELECT * FROM ratings_test')
+            #test2.show()
+            predicted = model.transform(ratings_val)
+            # print(predicted)
+            # predicted = predicted.na.drop()
+            evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
+            rmse = evaluator.evaluate(predicted)
+            print('maxIter: ', maxIter, 'regParam: ', regParam, 'Root-mean-square error = ' + str(rmse))
 
 
 
