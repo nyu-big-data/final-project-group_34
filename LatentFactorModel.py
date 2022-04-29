@@ -18,7 +18,7 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_small_set.parquet')
+    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
     ratings_train.createOrReplaceTempView('ratings_train')
     test1 = spark.sql('SELECT * FROM ratings_train')
     test1.show()
