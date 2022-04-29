@@ -34,7 +34,7 @@ def main(spark, netID):
     als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
     model = als.fit(ratings_train)
 
-    ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/test_large_set.parquet') # TODO timestamep type
+    ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet') # TODO timestamep type
     ratings_test.createOrReplaceTempView('ratings_test')
     test2 = spark.sql('SELECT * FROM ratings_test')
     test2.show()    

@@ -73,11 +73,11 @@ def main(spark, netID):
     temp1_set.createOrReplaceTempView('temp1_set')
     temp2_set.createOrReplaceTempView('temp2_set')
     
-    train1_sending = spark.sql('select userId, timestamp, movieId, rating from temp1_set where percent <= 0.15')
+    train1_sending = spark.sql('select userId, movieId, rating, timestamp from temp1_set where percent <= 0.15')
     train1_sending.createOrReplaceTempView('train1_sending')
     
     
-    train2_sending = spark.sql('select userId, timestamp, movieId, rating from temp2_set where percent <= 0.15')
+    train2_sending = spark.sql('select userId, movieId, rating, timestamp from temp2_set where percent <= 0.15')
     train2_sending.createOrReplaceTempView('train2_sending')
     
     final_val_set = spark.sql('select userId, timestamp, movieId, rating from temp1_set where percent > 0.15')
@@ -103,11 +103,11 @@ def main(spark, netID):
 #     final_test_set.write.mode('overwrite').parquet('test_small_set.parquet')
     
     train_combined.write.mode('overwrite').parquet('train_combined_large_set.parquet')
-#     train_set.write.mode('overwrite').parquet('train_large_set.parquet')
-#     train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
-#     train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
-#     final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
-#     final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
+    train_set.write.mode('overwrite').parquet('train_large_set.parquet')
+    train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
+    train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
+    final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
+    final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
 
 
 
