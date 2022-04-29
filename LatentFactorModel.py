@@ -18,7 +18,10 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    ratings_train = spark.read.parquet(f'hdfs:/user/{userId}/train_combined_small_set.parquet')
+    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    ratings_train.createOrReplaceTempView('ratings_train')
+    test1 = spark.sql('SELECT * FROM ratings_train')
+    test1.show()
 
     #ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
     #ratings_train_RDD = spark.createDataFrame(ratings_train)
@@ -28,10 +31,14 @@ def main(spark, netID):
     #score.show()
 
 
-    als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop" )
+    als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="nan")
     model = als.fit(ratings_train)
 
-    ratings_test = spark.read.csv(f'hdfs:/user/{netID}/test_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings_test = spark.read.csv(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
+    ratings_test.createOrReplaceTempView('ratings_test')
+    test2 = spark.sql('SELECT * FROM ratings_test')
+    test2.show()    
+
     predicted = model.transform(ratings_test)
     evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
     rmse = evaluator.evaluate(predicted)
