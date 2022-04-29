@@ -10,10 +10,6 @@ import getpass
 # And pyspark.sql to get the spark session
 from pyspark.sql import SparkSession
 
-import pandas as pd
-import numpy as np
-
-from sklearn.model_selection import train_test_split
 
 def main(spark, netID):
     '''Main routine for Lab Solutions
@@ -24,29 +20,86 @@ def main(spark, netID):
     '''
 
     # Load the boats.txt and sailors.json data into DataFrame
-    ratings = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/ratings.csv')
-    movies = pd.read_csv('hdfs:/user/{netID}/movielens/ml-latest-small/movies.csv')
+    ratings = spark.read.csv(f'hdfs:/user/yj2369/movielens/ml-latest/ratings.csv', header=True,
+                            schema='userId INT, movieId INT, rating FLOAT, timestamp INT')
+    
+    ratings.createOrReplaceTempView('ratings')
+    
+    user = spark.sql('select userId from ratings group by userId')
+    
+   
+    
+    train_user, testval_user = user.randomSplit([0.6, 0.4], seed=13)
+    
+    
+    user.createOrReplaceTempView('user')
+    train_user.createOrReplaceTempView('train_user')
+    testval_user.createOrReplaceTempView('testval_user')
+    
 
-    user = ratings.userId.unique()
+    train_set = spark.sql('select ratings.userId, ratings.movieId, ratings.rating, ratings.timestamp from ratings join train_user on ratings.userId = train_user.userId')
+    
+    train_set.createOrReplaceTempView('train_set')
+    
 
-    train_user, testval_user = train_test_split(pd.DataFrame(user), test_size=0.6)
-    temp1_movie, temp2_movie = train_test_split(ratings['movieId'], test_size = 0.7)
+    
+    
+    testval_set = spark.sql('select ratings.userId, ratings.movieId, ratings.rating, ratings.timestamp from ratings join testval_user on ratings.userId = testval_user.userId')
+    
+    testval_set.createOrReplaceTempView('testval_set')
 
-    train_set = ratings[ratings['userId'].isin(list(train_user[0]))]
-    testval_set = ratings[ratings['userId'].isin(list(testval_user[0]))]
-    train_sending = testval_set[testval_set['movieId'].isin(list(temp1_movie))]
-    testval_cluster = testval_set[testval_set['movieId'].isin(list(temp2_movie))]
+    
+    
+    val_user, test_user = testval_user.randomSplit([0.5, 0.5])
+    
+    val_user.createOrReplaceTempView('val_user')
+    test_user.createOrReplaceTempView('test_user')
+    
+    
+    val_set = spark.sql('select testval_set.userId, testval_set.movieId, testval_set.rating, testval_set.timestamp from testval_set join val_user on testval_set.userId = val_user.userId')
 
-    val_user, test_user = train_test_split(testval_cluster['userId'], test_size = 0.5)
+    
+    val_set.createOrReplaceTempView('val_set')
+    
+    test_set = spark.sql('select testval_set.userId, testval_set.movieId, testval_set.rating, testval_set.timestamp from testval_set join test_user on testval_set.userId = test_user.userId')
+    
+    test_set.createOrReplaceTempView('test_set')
 
-    val_set = testval_cluster[testval_cluster['userId'].isin(list(val_user))]
-    test_set = testval_cluster[testval_cluster['userId'].isin(list(test_user))]
+    
+    temp1_set = spark.sql('select userId, timestamp, movieId, rating, percent_rank() OVER (PARTITION BY userId ORDER BY timestamp) as percent from val_set')
+    
+    temp2_set = spark.sql('select userId, timestamp, movieId, rating, percent_rank() OVER (PARTITION BY userId ORDER BY timestamp) as percent from test_set')
+    
+    temp1_set.createOrReplaceTempView('temp1_set')
+    temp2_set.createOrReplaceTempView('temp2_set')
+    
+    train1_sending = spark.sql('select userId, timestamp, movieId, rating from temp1_set where percent <= 0.15')
+    train1_sending.createOrReplaceTempView('train1_sending')
+    
+    
+    train2_sending = spark.sql('select userId, timestamp, movieId, rating from temp2_set where percent <= 0.15')
+    train2_sending.createOrReplaceTempView('train2_sending')
+    
+    final_val_set = spark.sql('select userId, timestamp, movieId, rating from temp1_set where percent > 0.15')
+    final_test_set = spark.sql('select userId, timestamp, movieId, rating from temp2_set where percent > 0.15')
+    
+   
+    final_val_set.createOrReplaceTempView('final_val_set')
+    final_test_set.createOrReplaceTempView('final_test_set')
+    
+    
+#     train_set.write.mode('overwrite').parquet('train_small_set.parquet')
+#     train1_sending.write.mode('overwrite').parquet('train1_sending_small_set.parquet')
+#     train2_sending.write.mode('overwrite').parquet('train2_sending_small_set.parquet')
+#     final_val_set.write.mode('overwrite').parquet('val_small_set.parquet')
+#     final_test_set.write.mode('overwrite').parquet('test_small_set.parquet')
+    
+    train_set.write.mode('overwrite').parquet('train_large_set.parquet')
+    train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
+    train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
+    final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
+    final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
 
-    print(val_set.head())
-
-    # val_user, test_user = train_test_split(temp_user, test_size = 0.5)
-
-    # temp1_movie, temp2_movie = train_test_split(ratings['movieId'], test_size = 0.7)
 
 
 
