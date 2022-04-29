@@ -20,18 +20,21 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
     ratings = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    # ratings = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
     ratings.createOrReplaceTempView('ratings')
     avg_scores = spark.sql('select ratings.movieId, avg(ratings.rating) as average from ratings group by ratings.movieId order by average desc')
     avg_scores.createOrReplaceTempView('avg_scores')
     avg_scores.show()
 
     ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
+    # ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet')
     ratings_val.createOrReplaceTempView('ratings_val')
     avg_scores_val = spark.sql('SELECT ratings_val.movieId, AVG(ratings_val.rating) as average from ratings_val group by ratings_val.movieId order by average desc')
     avg_scores_val.createOrReplaceTempView('avg_scores_val')
     avg_scores_val.show()
 
     ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/test_small_set.parquet') # TODO timestamep type
+    # ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/test_large_set.parquet')  # TODO timestamep type
     ratings_test.createOrReplaceTempView('ratings_test')
     avg_scores_test = spark.sql('SELECT ratings_test.movieId, AVG(ratings_test.rating) as average FROM ratings_test GROUP BY ratings_test.movieId ORDER BY average desc')
     avg_scores_test.createOrReplaceTempView('avg_scores_test')
