@@ -88,17 +88,26 @@ def main(spark, netID):
     final_test_set.createOrReplaceTempView('final_test_set')
     
     
+    comb1 = train_set.union(train1_sending)
+    comb1.createOrReplaceTempView('comb1')
+    
+    train_combined = comb1.union(train2_sending)
+    train_combined.createOrReplaceTempView('train_combined')
+    
+    
+#     train_combined.write.mode('overwrite').parquet('train_combined_small_set.parquet')
 #     train_set.write.mode('overwrite').parquet('train_small_set.parquet')
 #     train1_sending.write.mode('overwrite').parquet('train1_sending_small_set.parquet')
 #     train2_sending.write.mode('overwrite').parquet('train2_sending_small_set.parquet')
 #     final_val_set.write.mode('overwrite').parquet('val_small_set.parquet')
 #     final_test_set.write.mode('overwrite').parquet('test_small_set.parquet')
     
-    train_set.write.mode('overwrite').parquet('train_large_set.parquet')
-    train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
-    train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
-    final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
-    final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
+    train_combined.write.mode('overwrite').parquet('train_combined_large_set.parquet')
+#     train_set.write.mode('overwrite').parquet('train_large_set.parquet')
+#     train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
+#     train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
+#     final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
+#     final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
 
 
 
