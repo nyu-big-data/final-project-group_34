@@ -18,18 +18,22 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='id INT, userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
     #ratings_train_RDD = spark.createDataFrame(ratings_train)
     ratings_train.createOrReplaceTempView('ratings_train')
 
     score = spark.sql('SELECT * FROM ratings_train WHERE userId=null')
+    score.show()
+	
+    test2 = spark.sql('SELECT * FROM ratings_train WHERE movieId=null')
+    test2.show()
 
-
+    ratings_train.printSchema()
 
     als = ALS(maxIter=5, regParam=0.01, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop" )
     model = als.fit(ratings_train)
 
-    ratings_test = spark.read.csv(f'hdfs:/user/{netID}/test_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
+    ratings_test = spark.read.csv(f'hdfs:/user/{netID}/test_small_data.csv', schema='id INT, userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
     predicted = model.transform(ratings_test)
     evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
     rmse = evaluator.evaluate(predicted)
