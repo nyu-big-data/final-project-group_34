@@ -7,7 +7,7 @@ File: Partition_process.py
 File: BaselineModel.py
 
 Result for small dataset
-![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_train_popularity.png width="50")
+![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_train_popularity.png)
 ![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_val_popularity.png)
 ![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_test_popularity.png)
 
@@ -21,5 +21,9 @@ File: LatentFactorModel.py
 
 Result for small dataset
 
-Result for large dataset
+
+### 4. Evaluation
+File: Eval.py - Baseline Model \
+      Eval_ALS.py - LatentFactorModel
+
 
