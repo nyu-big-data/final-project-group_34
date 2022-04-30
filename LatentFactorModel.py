@@ -24,7 +24,7 @@ def main(spark, netID):
     for maxIter in maxIters:
         for regParam in regParams:
 
-            ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
+            ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
             ratings_train.createOrReplaceTempView('ratings_train')
             # test1 = spark.sql('SELECT * FROM ratings_train')
             # test1.show()
@@ -38,12 +38,13 @@ def main(spark, netID):
             als = ALS(maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
             model = als.fit(ratings_train)
 
-            ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet') # TODO timestamep type
+            ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
             ratings_val.createOrReplaceTempView('ratings_val')
             #test2 = spark.sql('SELECT * FROM ratings_test')
             #test2.show()
             predicted = model.transform(ratings_val)
-            # print(predicted)
+            print(predicted)
+            #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
             evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
             rmse = evaluator.evaluate(predicted)
