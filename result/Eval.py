@@ -12,25 +12,28 @@ sc = SparkContext("local", "First App")
 #         for regParam in regParams:
 #     '''
 spark = SparkSession.builder.appName('popularity').getOrCreate()
-ratings_train = spark.read.option("header",True).parquet('train_combined_small_set.parquet')
+ratings_train = spark.read.option("header",True).parquet('val_large_set.parquet')
 
 df = ratings_train.toPandas()
 
+
+
 user_movie = list(df.groupby('userId')['movieId'].apply(list))
 
-popularity = spark.read.option("header",True).parquet('train_combined_small_set.parquet')
+popularity = spark.read.option("header",True).parquet('val_large_set.parquet')
 
 pop = popularity.toPandas()
 
+print(pop)
 
-pop_movie = list(df.groupby('userId')['movieId'].apply(list))
+# pop_movie = list(df.groupby('userId')['movieId'].apply(list))
 # pop_movie = list(pop['movieId'])
 
-inp = list(zip(user_movie,pop_movie))
+# inp = list(zip(user_movie,pop_movie))
 
-rdd = sc.parallelize(inp)
+# rdd = sc.parallelize(inp)
 
-metrics = RankingMetrics(rdd)
+# metrics = RankingMetrics(rdd)
 
-print(metrics.meanAveragePrecisionAt(2))
+# print(metrics.meanAveragePrecisionAt(2))
 
