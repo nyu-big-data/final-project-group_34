@@ -19,22 +19,23 @@ def main(spark, netID):
     spark : SparkSession object
     netID : string, netID of student to find files in HDFS
     '''
-    ratings = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    #ratings = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
     # ratings = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
-    ratings.createOrReplaceTempView('ratings')
-    avg_scores = spark.sql('select ratings.movieId, avg(ratings.rating) as average from ratings group by ratings.movieId order by average desc')
-    avg_scores.createOrReplaceTempView('avg_scores')
-    avg_scores.show()
-    print(avg_scores)
-    avg_scores.toPandas().to_csv('/home/yl7143/final-project-group_34/result/test1.csv', header=True)
+    #ratings.createOrReplaceTempView('ratings')
+    #avg_scores = spark.sql('select ratings.movieId, avg(ratings.rating) as average from ratings group by ratings.movieId order by average desc')
+    #avg_scores.createOrReplaceTempView('avg_scores')
+    #avg_scores.show()
+    #print(avg_scores)
+    #avg_scores.toPandas().to_csv('/home/yl7143/final-project-group_34/result/test1.csv', header=True)
     #avg_scores.repartition(1).write.csv(path='/result/test1.csv', header='true')
 
-    #ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
+    ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
     # ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet')
-    #ratings_val.createOrReplaceTempView('ratings_val')
-    #avg_scores_val = spark.sql('SELECT ratings_val.movieId, AVG(ratings_val.rating) as average from ratings_val group by ratings_val.movieId order by average desc')
-    #avg_scores_val.createOrReplaceTempView('avg_scores_val')
-    #avg_scores_val.show()
+    ratings_val.createOrReplaceTempView('ratings_val')
+    avg_scores_val = spark.sql('SELECT ratings_val.movieId, AVG(ratings_val.rating) as average from ratings_val group by ratings_val.movieId order by average desc LIMIT 100')
+    avg_scores_val.createOrReplaceTempView('avg_scores_val')
+    avg_scores_val.show()
+    avg_scores_val.write.mode('overwrite').parquet('hdfs:/user/yl7143/val_small_popularity.parquet')
 
     #ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/test_small_set.parquet') # TODO timestamep type
     # ratings_test = spark.read.parquet(f'hdfs:/user/{netID}/test_large_set.parquet')  # TODO timestamep type
