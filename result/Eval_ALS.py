@@ -8,6 +8,9 @@ import pandas as pd
 from pyspark import SparkContext
 sc = SparkContext("local", "First App")
 
+#     for maxIter in maxIters:
+#         for regParam in regParams:
+#     '''
 spark = SparkSession.builder.appName('popularity').getOrCreate()
 ratings_train = spark.read.option("header",True).parquet('val_small_set.parquet')
 
@@ -18,19 +21,21 @@ user_num = len(df.groupby('userId')['userId'])
 
 user_movie = list(df.groupby('userId')['movieId'].apply(list))
 
-popularity = spark.read.option("header",True).parquet('val_small_popularity.parquet')
+als_rec = spark.read.option("header",True).parquet('val_ALS_small_predicted.parquet')
 
 
-pop = popularity.toPandas()
+rec = als_rec.toPandas()
+
+rec_movie = list(rec.groupby('userId')['movieId'].apply(list))
 
 
-pop_movie = [list(pop['movieId'])]*user_num
 
-
-inp = list(zip(user_movie,pop_movie))
+inp = list(zip(user_movie,rec_movie))
 
 rdd = sc.parallelize(inp)
 
 metrics = RankingMetrics(rdd)
+
 print("Precision 100:", metrics.precisionAt(100))
 print("MAP 100:",metrics.meanAveragePrecisionAt(100))
+
