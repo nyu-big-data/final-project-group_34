@@ -22,7 +22,7 @@ MAP 100: 8.211891037205615e-09
 File: LatentFactorModel.py
 
 Result for small dataset
-'''
+```
 maxIter:  5 regParam:  0.01 Root-mean-square error = 1.292935382204839
 maxIter:  5 regParam:  0.1 Root-mean-square error = 0.9134382532601439
 maxIter:  10 regParam:  0.01 Root-mean-square error = 1.2921431266279613
@@ -31,7 +31,7 @@ maxIter:  10 regParam:  0.1 Root-mean-square error = 0.9133044520773148
 maxIter: 5, regParam: 0.01
 Precision 100: 0.07572649572649572
 MAP 100: 0.06845067505040847
-'''
+```
 
 
 ### 4. Evaluation
