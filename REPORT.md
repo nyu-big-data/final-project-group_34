@@ -7,12 +7,10 @@ File: Partition_process.py
 File: BaselineModel.py
 
 Result for small dataset
-![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_train_popularity.png)
-![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_val_popularity.png)
-![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/small_test_popularity.png)
-
-
-
+- train, validation, test dataset results in order
+![alt text](https://github.com/nyu-big-data/final-project-group_34/blob/main/result/images/popularity_small.png)
+Precision 100: 0.000683760683760684
+MAP 100: 8.763292737651712e-05
 
 Result for large dataset
 
