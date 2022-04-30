@@ -9,7 +9,7 @@ from pyspark import SparkContext
 sc = SparkContext("local", "First App")
 
 spark = SparkSession.builder.appName('popularity').getOrCreate()
-ratings_train = spark.read.option("header",True).parquet('val_small_set.parquet')
+ratings_train = spark.read.option("header",True).parquet('val_large_set.parquet')
 
 df = ratings_train.toPandas()
 
@@ -18,7 +18,7 @@ user_num = len(df.groupby('userId')['userId'])
 
 user_movie = list(df.groupby('userId')['movieId'].apply(list))
 
-popularity = spark.read.option("header",True).parquet('val_small_popularity.parquet')
+popularity = spark.read.option("header",True).parquet('train_large_popularity.parquet')
 
 
 pop = popularity.toPandas()
