@@ -40,10 +40,15 @@ def main(spark, netID):
 
             ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
             ratings_val.createOrReplaceTempView('ratings_val')
+            userSubsetRecs = ratings_val.select(als.getUserCol()).distinct()
             #test2 = spark.sql('SELECT * FROM ratings_test')
             #test2.show()
-            predicted = model.transform(ratings_val)
+
+            #predicted = model.transform(ratings_val)
+            #print(predicted)
+            predicted = model.recommendForUserSubset(userSubsetRecs, 100)
             print(predicted)
+
             #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
             evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="prediction")
