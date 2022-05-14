@@ -8,7 +8,8 @@ import getpass
 from pyspark.sql import SparkSession
 from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
-
+#from pyspark.sql import functions as fn
+import pyspark.sql.functions as fn 
 
 def main(spark, netID):
     '''Main routine for Lab Solutions
@@ -18,8 +19,8 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    maxIters = [5, 10]
-    regParams = [0.01, 0.1]
+    maxIters = [5]
+    regParams = [0.01]
 
     for maxIter in maxIters:
         for regParam in regParams:
@@ -41,13 +42,25 @@ def main(spark, netID):
             ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
             ratings_val.createOrReplaceTempView('ratings_val')
             userSubsetRecs = ratings_val.select(als.getUserCol()).distinct()
-            #test2 = spark.sql('SELECT * FROM ratings_test')
+            #test2 = spark.sql('SELECT * FROM ratings_val')
             #test2.show()
 
             #predicted = model.transform(ratings_val)
             #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
+            print("PREDICTED")
             print(predicted)
+
+            label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
+            #test3 = spark.sql('SELECT * FROM label')
+            print("TO LIST")
+            label.show()
+
+            combined = predicted.join(label, on = 'userId', how = 'inner')
+            print("COMBINED")
+            combined.show()
+
+            
 
             #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
