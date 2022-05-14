@@ -48,18 +48,14 @@ def main(spark, netID):
             #predicted = model.transform(ratings_val)
             #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
-            #predicted = predicted.rdd.map(lambda obj: (obj.movieId))
+            predicted = predicted.rdd.map(lambda obj: (obj.movieId))
+            print(predicted.take(100))
 
-            def extractMovieIds(rec):
-                return [row.movieId for row in rec]
-
-            
-            
-
-            #test2 = spark.createDataFrame(predicted, ["userId", "movieId"])
-            #test2.show()
-            print("PREDICTED")
-            print(predicted)
+            test2 = spark.createDataFrame(predicted, ["userId", "recommendations"])
+            print("TEST2")
+            test2.show()
+            #print("PREDICTED")
+            #print(predicted)
 
             label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
             #test3 = spark.sql('SELECT * FROM label')
