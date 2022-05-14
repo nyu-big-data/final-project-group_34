@@ -72,9 +72,15 @@ def main(spark, netID):
             print("TO LIST")
             label.show()
 
-            combined = predicted.join(label, ['userId'])
-            print("COMBINED")
-            combined.show()
+            combined = predicted.join(label,
+                                              fn.col('userId') == fn.col('userId'))
+            .dropna()
+            .rdd
+            .map(lambda r: (r.rec_movie_id_indices, r.movieId))
+
+            # combined = predicted.join(label, ['userId'])
+            # print("COMBINED")
+            # combined.show()
 
             metrics = RankingMetrics(combined)
             print('MAP: ', metrics.meanAveragePrecision)
