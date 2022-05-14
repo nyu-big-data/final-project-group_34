@@ -76,13 +76,13 @@ def main(spark, netID):
             print("COMBINED")
             combined.show()
 
-            metrics = RankingMetrics(combined)
-            print('MAP: ', metrics.meanAveragePrecision)
-            print('PrecisionAtK: ', metrics.precisionAt(100))
+            #metrics = RankingMetrics(combined)
+            #print('MAP: ', metrics.meanAveragePrecision)
+            #print('PrecisionAtK: ', metrics.precisionAt(100))
 
             
 
-            #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
+            predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
             #evaluator = RegressionEvaluator(metricName='rmse', labelCol='label', predictionCol="rec_movie_id_indices")
             #rmse = evaluator.evaluate(predicted)
