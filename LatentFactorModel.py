@@ -48,7 +48,16 @@ def main(spark, netID):
             #predicted = model.transform(ratings_val)
             #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
-            predicted = predicted.rdd.map(lambda obj: (obj.movieId))
+            #predicted = predicted.rdd.map(lambda obj: (obj.movieId))
+
+            def extractMovieIds(rec):
+                return [row.movieId for row in rec]
+
+            
+            
+
+            #test2 = spark.createDataFrame(predicted, ["userId", "movieId"])
+            #test2.show()
             print("PREDICTED")
             print(predicted)
 
@@ -57,7 +66,7 @@ def main(spark, netID):
             print("TO LIST")
             label.show()
 
-            combined = predicted.join(label, on = 'userId', how = 'inner')
+            combined = predicted.join(label, ['userId'])
             print("COMBINED")
             combined.show()
 
