@@ -80,7 +80,7 @@ def main(spark, netID):
 
             #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
-            evaluator = RegressionEvaluator(metricName='rmse', labelCol='rating', predictionCol="recommendations")
+            evaluator = RegressionEvaluator(metricName='rmse', labelCol='label', predictionCol="rec_movie_id_indices")
             rmse = evaluator.evaluate(predicted)
             print('maxIter: ', maxIter, 'regParam: ', regParam, 'Root-mean-square error = ' + str(rmse))
 
