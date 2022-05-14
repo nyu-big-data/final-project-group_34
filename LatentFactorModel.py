@@ -9,7 +9,8 @@ from pyspark.sql import SparkSession
 from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
 #from pyspark.sql import functions as fn
-import pyspark.sql.functions as fn 
+import pyspark.sql.functions as fn
+from pyspark.sql import types as T
 
 def main(spark, netID):
     '''Main routine for Lab Solutions
@@ -48,12 +49,21 @@ def main(spark, netID):
             #predicted = model.transform(ratings_val)
             #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
-            predicted = predicted.rdd.map(lambda obj: (obj.movieId))
-            print(predicted.take(100))
 
-            test2 = spark.createDataFrame(predicted, ["userId", "recommendations"])
-            print("TEST2")
-            test2.show()
+            def extractMovieIds(rec):
+                return [row.movieId for row in rec]
+
+            extractRecMovieIdsUDF = fn.udf(lambda r: extractMovieIds(r), T.ArrayType(T.IntegerType()))
+            predicted = predicted.select(
+                fn.col('userId').alias('userId'),
+                extractRecMovieIdsUDF('recommendations').alias('rec_movie_id_indices')
+            )
+            #predicted = predicted.rdd.map(lambda obj: (obj.movieId))
+            #print(predicted.take(100))
+
+            #test2 = spark.createDataFrame(predicted, ["userId", "recommendations"])
+            #print("TEST2")
+            #test2.show()
             #print("PREDICTED")
             #print(predicted)
 
