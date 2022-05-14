@@ -10,6 +10,9 @@ from pyspark.ml.recommendation import ALS
 import pyspark.sql.functions as fn
 from pyspark.sql import types as T
 
+from pyspark.mllib.evaluation import RankingMetrics
+
+
 def main(spark, netID):
     '''Main routine for Lab Solutions
     Parameters
@@ -72,6 +75,10 @@ def main(spark, netID):
             combined = predicted.join(label, ['userId'])
             print("COMBINED")
             combined.show()
+
+            metrics = RankingMetrics(combined)
+            print('MAP: ', metrics.meanAveragePrecision)
+            print('PrecisionAtK: ', metrics.precisionAt(100))
 
             
 
