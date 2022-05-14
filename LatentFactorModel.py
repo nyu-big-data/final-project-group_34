@@ -7,8 +7,6 @@ import getpass
 # And pyspark.sql to get the spark session
 from pyspark.sql import SparkSession
 from pyspark.ml.recommendation import ALS
-from pyspark.ml.evaluation import RegressionEvaluator
-#from pyspark.sql import functions as fn
 import pyspark.sql.functions as fn
 from pyspark.sql import types as T
 
@@ -47,7 +45,6 @@ def main(spark, netID):
             #test2.show()
 
             #predicted = model.transform(ratings_val)
-            #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
 
             def extractMovieIds(rec):
@@ -80,9 +77,9 @@ def main(spark, netID):
 
             #predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
-            evaluator = RegressionEvaluator(metricName='rmse', labelCol='label', predictionCol="rec_movie_id_indices")
-            rmse = evaluator.evaluate(predicted)
-            print('maxIter: ', maxIter, 'regParam: ', regParam, 'Root-mean-square error = ' + str(rmse))
+            #evaluator = RegressionEvaluator(metricName='rmse', labelCol='label', predictionCol="rec_movie_id_indices")
+            #rmse = evaluator.evaluate(predicted)
+            #print('maxIter: ', maxIter, 'regParam: ', regParam, 'Root-mean-square error = ' + str(rmse))
 
 
 
