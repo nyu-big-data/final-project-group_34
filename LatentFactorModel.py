@@ -48,6 +48,7 @@ def main(spark, netID):
             #predicted = model.transform(ratings_val)
             #print(predicted)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
+            predicted = predicted.rdd.map(lambda obj: (obj.movieId))
             print("PREDICTED")
             print(predicted)
 
