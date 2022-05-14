@@ -76,9 +76,9 @@ def main(spark, netID):
             print("COMBINED")
             combined.show()
 
-            #metrics = RankingMetrics(combined)
-            #print('MAP: ', metrics.meanAveragePrecision)
-            #print('PrecisionAtK: ', metrics.precisionAt(100))
+            metrics = RankingMetrics(combined)
+            print('MAP: ', metrics.meanAveragePrecision)
+            print('PrecisionAtK: ', metrics.precisionAt(100))
 
             
 
