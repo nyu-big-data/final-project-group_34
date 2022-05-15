@@ -81,10 +81,10 @@ def main(spark, sc, netID):
 
             #sc = SparkContext("local", "First App")
 
-            rdd = sc.parallelize(combined)
-            metrics = RankingMetrics(rdd)
-            print('MAP: ', metrics.meanAveragePrecision)
-            print('PrecisionAtK: ', metrics.precisionAt(100))
+            #rdd = sc.parallelize(combined)
+            #metrics = RankingMetrics(rdd)
+            #print('MAP: ', metrics.meanAveragePrecision)
+            #print('PrecisionAtK: ', metrics.precisionAt(100))
 
             
 
