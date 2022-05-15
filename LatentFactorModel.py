@@ -26,7 +26,7 @@ def main(spark, netID):
             ratings_train.createOrReplaceTempView('ratings_train')
             print("Ratings")
             ratings_train.show()
-            als = ALS(maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+            als = ALS(rank=10, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
             model = als.fit(ratings_train)
             ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
             #ratings_val.createOrReplaceTempView('ratings_val')
