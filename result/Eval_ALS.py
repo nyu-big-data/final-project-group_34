@@ -11,13 +11,15 @@ ratings_train = spark.read.option("header",True).parquet('val_small_set.parquet'
 
 df = ratings_train.toPandas()
 df['userId'] = df['userId'].sort_values()
+#print(df)
 user_movie = list(df.groupby('userId')['movieId'].apply(list))
-print("LABEL")
+#print("LABEL")
 #print(user_movie)
 
 als_rec = spark.read.option("header",True).parquet('val_ALS_small_predicted.parquet')
 rec = als_rec.toPandas()
 rec['pr_userId'] = rec['pr_userId'].sort_values()
+print(len(rec['rec_movie_id_indices'].iloc[0]))
 rec = list(rec.groupby('pr_userId')['rec_movie_id_indices'].apply(list))
 print('REC')
 #print(rec)

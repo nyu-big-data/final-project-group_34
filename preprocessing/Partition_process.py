@@ -20,7 +20,7 @@ def main(spark, netID):
     '''
 
     # Load the boats.txt and sailors.json data into DataFrame
-    ratings = spark.read.csv(f'hdfs:/user/yj2369/movielens/ml-latest/ratings.csv', header=True,
+    ratings = spark.read.csv(f'hdfs:/user/yl7143/movielens/ml-latest-small/ratings.csv', header=True,
                             schema='userId INT, movieId INT, rating FLOAT, timestamp INT')
     
     ratings.createOrReplaceTempView('ratings')
@@ -95,19 +95,19 @@ def main(spark, netID):
     train_combined.createOrReplaceTempView('train_combined')
     
     
-#     train_combined.write.mode('overwrite').parquet('train_combined_small_set.parquet')
-#     train_set.write.mode('overwrite').parquet('train_small_set.parquet')
-#     train1_sending.write.mode('overwrite').parquet('train1_sending_small_set.parquet')
-#     train2_sending.write.mode('overwrite').parquet('train2_sending_small_set.parquet')
-#     final_val_set.write.mode('overwrite').parquet('val_small_set.parquet')
-#     final_test_set.write.mode('overwrite').parquet('test_small_set.parquet')
+    train_combined.write.mode('overwrite').parquet('train_combined_small_set.parquet')
+    train_set.write.mode('overwrite').parquet('train_small_set.parquet')
+    train1_sending.write.mode('overwrite').parquet('train1_sending_small_set.parquet')
+    train2_sending.write.mode('overwrite').parquet('train2_sending_small_set.parquet')
+    final_val_set.write.mode('overwrite').parquet('val_small_set.parquet')
+    final_test_set.write.mode('overwrite').parquet('test_small_set.parquet')
     
-    train_combined.write.mode('overwrite').parquet('train_combined_large_set.parquet')
-    train_set.write.mode('overwrite').parquet('train_large_set.parquet')
-    train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
-    train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
-    final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
-    final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
+    #train_combined.write.mode('overwrite').parquet('train_combined_large_set.parquet')
+    #train_set.write.mode('overwrite').parquet('train_large_set.parquet')
+    #train1_sending.write.mode('overwrite').parquet('train1_sending_large_set.parquet')
+    #train2_sending.write.mode('overwrite').parquet('train2_sending_large_set.parquet')
+    #final_val_set.write.mode('overwrite').parquet('val_large_set.parquet')
+    #final_test_set.write.mode('overwrite').parquet('test_large_set.parquet')
 
 
 

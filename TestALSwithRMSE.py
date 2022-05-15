@@ -18,15 +18,15 @@ def main(spark, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    # ranks = [10, 50, 100, 200]
-    # maxIters = [10, 50, 100]
-    # regParams = [0.01, 0.1, 1]
-    # alphas = [1, 40]
+    ranks = [10, 50, 100, 200]
+    maxIters = [10, 50, 100]
+    regParams = [0.01, 0.1, 1]
+    alphas = [1, 40]
 
-    ranks = [10]
-    maxIters = [10]
-    regParams = [0.01]
-    alphas = [1]
+    #ranks = [10]
+    #maxIters = [10]
+    #regParams = [0.01]
+    #alphas = [1]
 
     for rank in ranks:
         for maxIter in maxIters:
