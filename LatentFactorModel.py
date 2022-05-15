@@ -69,7 +69,7 @@ def main(spark, sc, netID):
             #print("PREDICTED")
             #print(predicted)
 
-            label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
+            label = ratings_val.groupBy("userId").agg(fn.sort_array(fn.collect_list('movieId').alias('label')))
             #test3 = spark.sql('SELECT * FROM label')
             print("TO LIST")
             label.show()
