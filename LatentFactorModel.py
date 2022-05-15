@@ -42,8 +42,10 @@ def main(spark, sc, netID):
             model = als.fit(ratings_train)
 
             ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
-            ratings_val.createOrReplaceTempView('ratings_val')
-            userSubsetRecs = ratings_val.select(als.getUserCol()).distinct()
+            #ratings_val.createOrReplaceTempView('ratings_val')
+            userSubsetRecs = ratings_val.select("userId").distinct().sort("userId")
+            print("userSubsetRecs")
+            userSubsetRecs.show()
             #test2 = spark.sql('SELECT * FROM ratings_val')
             #test2.show()
 
