@@ -21,8 +21,8 @@ def main(spark, sc, netID):
     netID : string, netID of student to find files in HDFS
     '''
 
-    maxIters = [5]
-    regParams = [0.01]
+    maxIters = [10]
+    regParams = [0.1]
 
     for maxIter in maxIters:
         for regParam in regParams:
@@ -44,8 +44,8 @@ def main(spark, sc, netID):
             ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
             #ratings_val.createOrReplaceTempView('ratings_val')
             userSubsetRecs = ratings_val.select("userId").distinct().sort("userId")
-            print("userSubsetRecs")
-            userSubsetRecs.show()
+            #print("userSubsetRecs")
+            #userSubsetRecs.show()
             #test2 = spark.sql('SELECT * FROM ratings_val')
             #test2.show()
 
@@ -66,16 +66,16 @@ def main(spark, sc, netID):
             #test2 = spark.createDataFrame(predicted, ["userId", "recommendations"])
             #print("TEST2")
             #test2.show()
-            #print("PREDICTED")
-            #print(predicted)
+            print("PREDICTED")
+            print(predicted)
 
-            label = ratings_val.groupBy("userId").agg(fn.sort_array(fn.collect_list('movieId').alias('label')))
+            #label = ratings_val.groupBy("userId").agg(fn.sort_array(fn.collect_list('movieId').alias('label')))
             #test3 = spark.sql('SELECT * FROM label')
-            print("TO LIST")
-            label.show()
+            #print("TO LIST")
+            #label.show()
 
-            combined = predicted.join(label, fn.col('pr_userId') == fn.col('userId'))\
-                .dropna().rdd.map(lambda r: (r.rec_movie_id_indices, r.movieId))
+            #combined = predicted.join(label, fn.col('pr_userId') == fn.col('userId'))\
+            #    .dropna().rdd.map(lambda r: (r.rec_movie_id_indices, r.movieId))
 
             # combined = predicted.join(label, ['userId'])
             # print("COMBINED")
