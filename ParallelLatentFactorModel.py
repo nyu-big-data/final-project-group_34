@@ -16,17 +16,17 @@ def main(spark, netID):
     spark : SparkSession object
     netID : string, netID of student to find files in HDFS
     '''
-    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    ratings_train = spark.read.parquet('/home/yl7143/final-project-group_34/result/train_combined_small_set.parquet')
     ratings_train.createOrReplaceTempView('ratings_train')
 
     model = LightFM(loss='warp')
-    model.fit(ratings_train, epochs=30, num_threads=2)
+    model.fit(ratings_train, epochs=30, num_threads=8, verbose=True)
 
-    ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
+    ratings_val = spark.read.parquet('/home/yl7143/final-project-group_34/result/val_small_set.parquet') # TODO timestamep type
     ratings_val.createOrReplaceTempView('ratings_val')
 
     # Evaluate the trained model
-    test_precision = precision_at_k(model, ratings_val, k=5).mean()
+    test_precision = precision_at_k(model, ratings_val, k=100).mean()
     print("test_precision: ", test_precision)
 
 

@@ -13,7 +13,7 @@ from pyspark.sql import types as T
 from pyspark.mllib.evaluation import RankingMetrics
 from pyspark import SparkContext
 
-def main(spark, sc, netID):
+def main(spark, netID):
     '''Main routine for Lab Solutions
     Parameters
     ----------
@@ -90,7 +90,7 @@ def main(spark, sc, netID):
 
             
 
-            predicted.write.mode('overwrite').parquet(f'hdfs:/user/{netID}/val_ALS_small_predicted.parquet')
+            predicted.write.mode('overwrite').parquet('hdfs:///user/yl7143/val_ALS_small_predicted.parquet')
             # predicted = predicted.na.drop()
             #evaluator = RegressionEvaluator(metricName='rmse', labelCol='label', predictionCol="rec_movie_id_indices")
             #rmse = evaluator.evaluate(predicted)
@@ -102,11 +102,11 @@ def main(spark, sc, netID):
 # Only enter this block if we're in main
 if __name__ == "__main__":
     # Create the spark session object
-    sc = SparkContext("local", "First App")
+    #sc = SparkContext("local", "First App")
     spark = SparkSession.builder.appName('popularity').getOrCreate()
 
     # Get user netID from the command line
     netID = getpass.getuser()
 
     # Call our main routine
-    main(spark, sc, netID)
+    main(spark, netID)
