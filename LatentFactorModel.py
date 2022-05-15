@@ -29,14 +29,6 @@ def main(spark, netID):
 
             ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
             ratings_train.createOrReplaceTempView('ratings_train')
-            # test1 = spark.sql('SELECT * FROM ratings_train')
-            # test1.show()
-
-            # ratings_train = spark.read.csv(f'hdfs:/user/{netID}/train_small_data.csv', schema='userId INT, movieId INT, rating DOUBLE, timestamp INT') # TODO timestamep type
-            # ratings_train_RDD = spark.createDataFrame(ratings_train)
-            # ratings_train.createOrReplaceTempView('ratings_train')
-            # score = spark.sql('SELECT * FROM ratings_train WHERE userId=null')
-            # score.show()
 
             als = ALS(maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
             model = als.fit(ratings_train)
@@ -46,9 +38,6 @@ def main(spark, netID):
             userSubsetRecs = ratings_val.select("userId").distinct().sort("userId")
             #print("userSubsetRecs")
             #userSubsetRecs.show()
-            #test2 = spark.sql('SELECT * FROM ratings_val')
-            #test2.show()
-
             #predicted = model.transform(ratings_val)
             predicted = model.recommendForUserSubset(userSubsetRecs, 100)
 
@@ -69,13 +58,12 @@ def main(spark, netID):
             print("PREDICTED")
             print(predicted)
 
-            #label = ratings_val.groupBy("userId").agg(fn.sort_array(fn.collect_list('movieId').alias('label')))
-            #test3 = spark.sql('SELECT * FROM label')
+            label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
             #print("TO LIST")
             #label.show()
 
-            #combined = predicted.join(label, fn.col('pr_userId') == fn.col('userId'))\
-            #    .dropna().rdd.map(lambda r: (r.rec_movie_id_indices, r.movieId))
+            combined = predicted.join(fn.broadcast(label), fn.col('pr_userId') == fn.col('userId'))\
+                .rdd.map(lambda r: (r.rec_movie_id_indices, r.movieId))
 
             # combined = predicted.join(label, ['userId'])
             # print("COMBINED")
@@ -84,9 +72,10 @@ def main(spark, netID):
             #sc = SparkContext("local", "First App")
 
             #rdd = sc.parallelize(combined)
-            #metrics = RankingMetrics(rdd)
-            #print('MAP: ', metrics.meanAveragePrecision)
-            #print('PrecisionAtK: ', metrics.precisionAt(100))
+            metrics = RankingMetrics(combined)
+            print('PrecisionAtK: ', metrics.precisionAt(100))
+            print('MAP: ', metrics.meanAveragePrecisionAt(100))
+
 
             
 
