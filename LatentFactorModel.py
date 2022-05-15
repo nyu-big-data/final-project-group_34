@@ -18,12 +18,13 @@ def main(spark, netID):
     spark : SparkSession object
     netID : string, netID of student to find files in HDFS
     '''
-    maxIters = [10, 100, 500, 1000]
-    regParams = [0.001, 0.01, 0.1]
-    ranks = [10, 50, 100, 200]
+    maxIters = [50]
+    regParams = [0.01]
+    ranks = [10]
     for maxIter in maxIters:
         for regParam in regParams:
             for rank in ranks:
+                print('maxIter: ', maxIter, 'regParam: ', regParam, 'rank: ', rank)
                 ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
                 ratings_train.createOrReplaceTempView('ratings_train')
                 print("Ratings")
