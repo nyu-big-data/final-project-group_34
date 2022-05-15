@@ -10,6 +10,7 @@ from pyspark.ml.recommendation import ALS
 import pyspark.sql.functions as fn
 from pyspark.sql import types as T
 from pyspark.mllib.evaluation import RankingMetrics
+import time
 
 def main(spark, netID):
     '''Main routine for Lab Solutions
@@ -21,17 +22,23 @@ def main(spark, netID):
     maxIters = [50]
     regParams = [0.01]
     ranks = [10]
+
+    ratings_train_orig = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    ratings_val_orig = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet')
+
     for maxIter in maxIters:
         for regParam in regParams:
             for rank in ranks:
+                start_time = time.time()
                 print('maxIter: ', maxIter, 'regParam: ', regParam, 'rank: ', rank)
-                ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+                print('start at: ', start_time)
+                ratings_train = ratings_train_orig
                 ratings_train.createOrReplaceTempView('ratings_train')
                 print("Ratings")
                 ratings_train.show()
                 als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
                 model = als.fit(ratings_train)
-                ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet') # TODO timestamep type
+                ratings_val = ratings_val_orig
                 #ratings_val.createOrReplaceTempView('ratings_val')
                 userSubsetRecs = ratings_val.select("userId").distinct().sort("userId")
                 #print("userSubsetRecs")
@@ -69,7 +76,8 @@ def main(spark, netID):
                 #print('PrecisionAtK: ', metrics.precisionAt(100))
                 #print('MAP: ', metrics.meanAveragePrecision)
 
-
+                finish_time = time.time()
+                print("----- %s seconds -----", finish_time - start_time)
 
                 predicted.write.mode('overwrite').parquet(f'hdfs:///user/yl7143/val_ALS_small_predicted_{maxIter}_{regParam}_{rank}.parquet')
                 # predicted = predicted.na.drop()
