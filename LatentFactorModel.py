@@ -50,21 +50,21 @@ def main(spark, netID):
             #test2.show()
             print("PREDICTED")
             print(predicted)
-            label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
+            #label = ratings_val.groupBy("userId").agg(fn.collect_list('movieId').alias('label'))
             #print("TO LIST")
             #label.show()
 
-            combined = predicted.join(fn.broadcast(label), fn.col('pr_userId') == fn.col('userId'))\
-                .rdd.map(lambda r: (r.rec_movie_id_indices, r.label))
+            #combined = predicted.join(fn.broadcast(label), fn.col('pr_userId') == fn.col('userId'))\
+            #    .rdd.map(lambda r: (r.rec_movie_id_indices, r.label))
 
             # combined = predicted.join(label, ['userId'])
             # print("COMBINED")
             # combined.show()
             #sc = SparkContext("local", "First App")
             #rdd = sc.parallelize(combined)
-            metrics = RankingMetrics(combined)
-            print('PrecisionAtK: ', metrics.precisionAt(100))
-            print('MAP: ', metrics.meanAveragePrecision)
+            #metrics = RankingMetrics(combined)
+            #print('PrecisionAtK: ', metrics.precisionAt(100))
+            #print('MAP: ', metrics.meanAveragePrecision)
 
 
 
