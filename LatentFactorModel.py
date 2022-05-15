@@ -11,9 +11,9 @@ import pyspark.sql.functions as fn
 from pyspark.sql import types as T
 
 from pyspark.mllib.evaluation import RankingMetrics
+from pyspark import SparkContext
 
-
-def main(spark, netID):
+def main(spark, sc, netID):
     '''Main routine for Lab Solutions
     Parameters
     ----------
@@ -55,7 +55,7 @@ def main(spark, netID):
 
             extractRecMovieIdsUDF = fn.udf(lambda r: extractMovieIds(r), T.ArrayType(T.IntegerType()))
             predicted = predicted.select(
-                fn.col('userId').alias('userId'),
+                fn.col('userId').alias('pr_userId'),
                 extractRecMovieIdsUDF('recommendations').alias('rec_movie_id_indices')
             )
             #predicted = predicted.rdd.map(lambda obj: (obj.movieId))
@@ -72,14 +72,17 @@ def main(spark, netID):
             print("TO LIST")
             label.show()
 
-            combined = predicted.join(label, fn.col('userId') == fn.col('userId'))\
+            combined = predicted.join(label, fn.col('pr_userId') == fn.col('userId'))\
                 .dropna().rdd.map(lambda r: (r.rec_movie_id_indices, r.movieId))
 
             # combined = predicted.join(label, ['userId'])
             # print("COMBINED")
             # combined.show()
 
-            metrics = RankingMetrics(combined)
+            #sc = SparkContext("local", "First App")
+
+            rdd = sc.parallelize(combined)
+            metrics = RankingMetrics(rdd)
             print('MAP: ', metrics.meanAveragePrecision)
             print('PrecisionAtK: ', metrics.precisionAt(100))
 
@@ -97,10 +100,11 @@ def main(spark, netID):
 # Only enter this block if we're in main
 if __name__ == "__main__":
     # Create the spark session object
+    sc = SparkContext("local", "First App")
     spark = SparkSession.builder.appName('popularity').getOrCreate()
 
     # Get user netID from the command line
     netID = getpass.getuser()
 
     # Call our main routine
-    main(spark, netID)
+    main(spark, sc, netID)
