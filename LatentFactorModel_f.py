@@ -25,42 +25,32 @@ def main(spark, netID):
 
     rank = 10
     regParam = 0.01
-    maxIter = 10
+    maxIter = 20
 
-    ratings_train_orig = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
-    ratings_val_orig = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet')
+    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet')
 
 
     start_time = time.time()
     print('maxIter: ', maxIter, 'regParam: ', regParam, 'rank: ', rank)
     print('start at: ', start_time)
-    ratings_train = ratings_train_orig
     ratings_train.createOrReplaceTempView('ratings_train')
     print("Ratings")
     ratings_train.show()
-    als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
-    model = als.fit(ratings_train)
-    ratings_val = ratings_val_orig
+    # als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+    # model = als.fit(ratings_train)
+    # ratings_val = ratings_val_orig
     #ratings_val.createOrReplaceTempView('ratings_val')
 
-    predicted = model.recommendForUserSubset(userSubsetRecs, 100)
-    def extractMovieIds(rec):
-        return [row.movieId for row in rec]
 
-    extractRecMovieIdsUDF = fn.udf(lambda r: extractMovieIds(r), T.ArrayType(T.IntegerType()))
-    predicted = predicted.select(
-        fn.col('userId').alias('pr_userId'),
-        extractRecMovieIdsUDF('recommendations').alias('rec_movie_id_indices')
-    )
-
-    print("PREDICTED")
-    print(predicted)
+    # predicted = model.recommendForUserSubset(userSubsetRecs, 100)
+ 
 
 
     finish_time = time.time()
     print("----- %s seconds -----", finish_time - start_time)
 
-    predicted.write.mode('overwrite').parquet('val_ALS_small_predicted.parquet')
+    # predicted.write.mode('overwrite').parquet('val_ALS_small_predicted.parquet')
 
 
 
