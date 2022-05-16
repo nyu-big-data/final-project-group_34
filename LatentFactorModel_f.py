@@ -45,13 +45,21 @@ def main(spark, netID):
     
     userSubsetRecs.show()
     predicted = model.recommendForUserSubset(userSubsetRecs, 100)
-    predicted.show()
+    # predicted.show()
+    def extractMovieIds(rec):
+                return [row.movieId for row in rec]
+
+    extractRecMovieIdsUDF = fn.udf(lambda r: extractMovieIds(r), T.ArrayType(T.IntegerType()))
+    predicted = predicted.select(
+        fn.col('userId').alias('pr_userId'),
+        extractRecMovieIdsUDF('recommendations').alias('rec_movie_id_indices')
+    )
 
 
     finish_time = time.time()
     print("----- %s seconds -----", finish_time - start_time)
 
-    # predicted.write.mode('overwrite').parquet('val_ALS_small_predicted.parquet')
+    predicted.write.mode('overwrite').parquet('val_ALS_small_predicted_check.parquet')
 
 
 
