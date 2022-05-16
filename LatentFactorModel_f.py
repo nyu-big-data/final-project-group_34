@@ -27,8 +27,8 @@ def main(spark, netID):
     regParam = 0.01
     maxIter = 5
 
-    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_large_set.parquet')
-    ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_large_set.parquet')
+    ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
+    ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet')
 
 
     start_time = time.time()
@@ -46,6 +46,8 @@ def main(spark, netID):
     userSubsetRecs.show()
     predicted = model.recommendForUserSubset(userSubsetRecs, 100)
     # predicted.show()
+    # def extractMovieIds(rec):
+    #             return [row.movieId for row in rec]
     def extractMovieIds(rec):
                 return [row.movieId for row in rec]
 
@@ -59,7 +61,8 @@ def main(spark, netID):
     finish_time = time.time()
     print("----- %s seconds -----", finish_time - start_time)
 
-    predicted.write.mode('overwrite').parquet('val_ALS_large_predicted_check.parquet')
+    file_name = 'val_ALS_large_predicted_'+str(rank)+str(regParam)+str(maxIter) +'.parquet'
+    predicted.write.mode('overwrite').parquet(file_name)
 
 
 
