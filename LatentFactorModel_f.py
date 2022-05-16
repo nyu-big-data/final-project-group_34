@@ -37,10 +37,10 @@ def main(spark, netID):
     ratings_train.createOrReplaceTempView('ratings_train')
     print("Ratings")
     ratings_train.show()
-    # als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
-    # model = als.fit(ratings_train)
+    als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+    model = als.fit(ratings_train)
     # ratings_val = ratings_val_orig
-    #ratings_val.createOrReplaceTempView('ratings_val')
+    ratings_val.createOrReplaceTempView('ratings_val')
 
 
     # predicted = model.recommendForUserSubset(userSubsetRecs, 100)
