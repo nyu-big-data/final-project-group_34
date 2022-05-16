@@ -25,7 +25,7 @@ def main(spark, netID):
 
     rank = 10
     regParam = 0.01
-    maxIter = 20
+    maxIter = 5
 
     ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
     ratings_val = spark.read.parquet(f'hdfs:/user/{netID}/val_small_set.parquet')
@@ -36,15 +36,16 @@ def main(spark, netID):
     print('start at: ', start_time)
     ratings_train.createOrReplaceTempView('ratings_train')
     print("Ratings")
-    ratings_train.show()
-    als = ALS(rank=rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+    als = ALS( maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
     model = als.fit(ratings_train)
     # ratings_val = ratings_val_orig
     ratings_val.createOrReplaceTempView('ratings_val')
-
-
-    # predicted = model.recommendForUserSubset(userSubsetRecs, 100)
- 
+    userSubsetRecs = spark.sql('select userId from ratings_val group by userId')
+    userSubsetRecs.createOrReplaceTempView('userSubsetRecs')
+    
+    userSubsetRecs.show()
+    predicted = model.recommendForUserSubset(userSubsetRecs, 100)
+    predicted.show()
 
 
     finish_time = time.time()
