@@ -23,8 +23,8 @@ def main(spark, netID):
     regParams = [0.01]
     ranks = [10]
 
-    rank = 10
-    regParam = 0.01
+    rank = 5
+    regParam = 0.5
     maxIter = 5
 
     ratings_train = spark.read.parquet(f'hdfs:/user/{netID}/train_combined_small_set.parquet')
@@ -36,7 +36,7 @@ def main(spark, netID):
     print('start at: ', start_time)
     ratings_train.createOrReplaceTempView('ratings_train')
     print("Ratings")
-    als = ALS( maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
+    als = ALS(rank = rank, maxIter=maxIter, regParam=regParam, userCol='userId', itemCol='movieId', ratingCol='rating', coldStartStrategy="drop")
     model = als.fit(ratings_train)
     # ratings_val = ratings_val_orig
     ratings_val.createOrReplaceTempView('ratings_val')
@@ -57,13 +57,12 @@ def main(spark, netID):
         extractRecMovieIdsUDF('recommendations').alias('rec_movie_id_indices')
     )
 
-
+    
     finish_time = time.time()
     print("----- %s seconds -----", finish_time - start_time)
-
-    file_name = 'val_ALS_large_predicted_'+str(rank)+str(regParam)+str(maxIter) +'.parquet'
+    file_name = 'val_ALS_small_predicted_'+str(rank)+str(regParam)+str(maxIter) +'.parquet'
     predicted.write.mode('overwrite').parquet(file_name)
-
+    print(file_name)
 
 
 

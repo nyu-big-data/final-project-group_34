@@ -7,7 +7,7 @@ from pyspark import SparkContext
 sc = SparkContext("local", "First App")
 
 spark = SparkSession.builder.appName('popularity').getOrCreate()
-ratings_train = spark.read.option("header",True).parquet('val_small_set.parquet')
+ratings_train = spark.read.option("header",True).parquet('val_large_set.parquet')
 
 df = ratings_train.toPandas()
 # df['userId'] = df['userId'].sort_values()
@@ -17,7 +17,7 @@ user_movie = list(df.groupby('userId')['movieId'].apply(list))
 #print("LABEL")
 # print(user_movie)
 
-als_rec = spark.read.option("header",True).parquet('val_ALS_small_predicted.parquet')
+als_rec = spark.read.option("header",True).parquet('val_ALS_large_predicted_100.015.parquet')
 rec = als_rec.toPandas()
 rec = rec.sort_values(by = 'pr_userId')
 # rec['pr_userId'] = rec['pr_userId'].sort_values()
@@ -42,4 +42,4 @@ metrics = RankingMetrics(rdd)
 
 print("Precision 100:", metrics.precisionAt(100))
 print("MAP 100:",metrics.meanAveragePrecisionAt(100))
-
+print("NDCG 100:", metrics.ndcgAt(100))
